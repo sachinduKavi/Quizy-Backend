@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
+from email.parser import Parser
 
 from pathlib import Path
 
@@ -25,7 +26,9 @@ SECRET_KEY = 'django-insecure-fy23rik^5^qy(!&fta8&l_j9bxrm@19-@sz8jr2j08j3_dxt=9
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'http://localhost:5173'
+]
 
 
 # Application definition
@@ -38,20 +41,27 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'api'
+    'api',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
-
+APPEND_SLASH = False
 ROOT_URLCONF = 'quizy_backend_04.urls'
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  # Your frontend URL
+]
 
 TEMPLATES = [
     {
