@@ -76,13 +76,7 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
-    "AUTH_HEADER_TYPES": ("Bearer", SECRET_KEY),
-    "USER_ID_FIELD": "id",
-    "USER_ID_CLAIM": "username",
-    "AUTH_TOKEN_CLASSES": (
-        "rest_framework_simplejwt.tokens.AccessToken",
-    ),
-    "ALGORITHM": "HS256",
+    "AUTH_HEADER_TYPES": ("Bearer",)
 }
 
 TEMPLATES = [
