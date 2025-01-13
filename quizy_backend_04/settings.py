@@ -10,7 +10,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 from email.parser import Parser
-
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -44,7 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'api',
-    'corsheaders'
+    'corsheaders',
+    'rest_framework_simplejwt',
 ]
 
 MIDDLEWARE = [
@@ -64,6 +64,14 @@ ROOT_URLCONF = 'quizy_backend_04.urls'
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # Your frontend URL
 ]
+
+CORS_ALLOW_CREDENTIALS = True
+REST_FRAMEWORK = {
+'DEFAULT_AUTHENTICATION_CLASSES': (
+    'rest_framework_simplejwt.authentication.JWTAuthentication',
+)
+}
+
 
 TEMPLATES = [
     {
@@ -87,14 +95,26 @@ WSGI_APPLICATION = 'quizy_backend_04.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'djongo',
+#         'NAME': 'quiz_management',
+#         'CLIENT': {
+#             'host': 'mongodb://localhost:27017/',
+#         },
+#         'ENFORCE_SCHEMA': False,
+#     }
+# }
+
+
 DATABASES = {
     'default': {
-        'ENGINE': 'djongo',
+        'ENGINE': 'django.db.backends.mysql',  # Or 'django.db.backends.mysql'
         'NAME': 'quiz_management',
-        'CLIENT': {
-            'host': 'mongodb://localhost:27017/',
-        },
-        'ENFORCE_SCHEMA': False,
+        'USER': 'root',
+        'PASSWORD': 'root',
+        'HOST': 'localhost',
+        'PORT': '3306',
     }
 }
 

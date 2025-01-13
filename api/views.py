@@ -1,3 +1,5 @@
+from logging import exception
+
 from django.shortcuts import render
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -23,14 +25,17 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'], url_path='authorize')
     def authorize(self, request, *args, **kwargs):
+        print('running this post function...')
         proceed = False
         content = None
 
         try:
-            db_user = User.objects.filter(username=request.data['username']).first()
+            db_user = User.objects.filter(username=request.data['username'])[0]
+            print(db_user)
             proceed = db_user.password == request.data['password']
             message = "Authorized" if proceed else 'Invalid credentials'
-        except Exception:
+        except Exception as e:
+            print('exception occured', e)
             message = 'Invalid credentials'
 
 
