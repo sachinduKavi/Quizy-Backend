@@ -15,7 +15,7 @@ from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-AUTH_USER_MODEL = 'api.User'
+# AUTH_USER_MODEL = 'api.User'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -73,11 +73,6 @@ REST_FRAMEWORK = {
     ),
 }
 
-SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
-    "AUTH_HEADER_TYPES": ("Bearer",)
-}
 
 TEMPLATES = [
     {
@@ -116,10 +111,10 @@ WSGI_APPLICATION = 'quizy_backend_04.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',  # Or 'django.db.backends.mysql'
-        'NAME': 'quiz_management',
-        'USER': 'root',
-        'PASSWORD': 'root',
-        'HOST': 'localhost',
+        'NAME': 'sabariho_quiz_management',
+        'USER': 'sabariho_quiz_management',
+        'PASSWORD': '3dNEThxyLgUvZmsM8s4c',
+        'HOST': 's3.hostgrap.com',
         'PORT': '3306',
     }
 }
