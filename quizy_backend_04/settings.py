@@ -26,10 +26,16 @@ SECRET_KEY = 'django-insecure-fy23rik^5^qy(!&fta8&l_j9bxrm@19-@sz8jr2j08j3_dxt=9
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+
+CORS_ALLOW_ALL_ORIGINS = False
+
 ALLOWED_HOSTS = [
-    'http://localhost:5173',
     '127.0.0.1',
     'localhost'
+]
+
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:5173'
 ]
 
 
@@ -62,11 +68,8 @@ MIDDLEWARE = [
 APPEND_SLASH = False
 ROOT_URLCONF = 'quizy_backend_04.urls'
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  # Your frontend URL
-]
 
-CORS_ALLOW_CREDENTIALS = True
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -107,17 +110,27 @@ WSGI_APPLICATION = 'quizy_backend_04.wsgi.application'
 #     }
 # }
 
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',  # Or 'django.db.backends.mysql'
-        'NAME': 'sabariho_quiz_management',
-        'USER': 'sabariho_quiz_management',
-        'PASSWORD': '3dNEThxyLgUvZmsM8s4c',
-        'HOST': 's3.hostgrap.com',
+        'NAME': 'quiz_management',
+        'USER': 'root',
+        'PASSWORD': 'root',
+        'HOST': 'localhost',
         'PORT': '3306',
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',  # Or 'django.db.backends.mysql'
+#         'NAME': 'sabariho_quiz_management',
+#         'USER': 'sabariho_quiz_management',
+#         'PASSWORD': '3dNEThxyLgUvZmsM8s4c',
+#         'HOST': 's3.hostgrap.com',
+#         'PORT': '3306',
+#     }
+# }
 
 
 # Password validation
