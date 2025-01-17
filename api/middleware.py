@@ -1,6 +1,6 @@
 from cryptography.fernet import  Fernet
 
-key = Fernet.generate_key()
+key = b'OEYwS2JWTHmfB-PPUK8m6M70kUtSl9aRNjhFSejBNjM='
 cipher_suite = Fernet(key)
 
 def encrypt(message):

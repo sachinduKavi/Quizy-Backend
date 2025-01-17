@@ -13,6 +13,8 @@ from email.parser import Parser
 from pathlib import Path
 from datetime import timedelta
 
+from corsheaders.defaults import default_headers
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 # AUTH_USER_MODEL = 'api.User'
@@ -28,7 +30,7 @@ DEBUG = True
 
 
 CORS_ALLOW_ALL_ORIGINS = False
-
+CORS_ALLOW_CREDENTIALS = True
 ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost'
@@ -36,6 +38,11 @@ ALLOWED_HOSTS = [
 
 CORS_ORIGIN_WHITELIST = [
     'http://localhost:5173'
+]
+
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    'X-CSRFToken',
+    'Content-Type',
 ]
 
 
