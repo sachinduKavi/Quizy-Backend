@@ -117,27 +117,27 @@ WSGI_APPLICATION = 'quizy_backend_04.wsgi.application'
 #     }
 # }
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',  # Or 'django.db.backends.mysql'
-#         'NAME': 'quiz_management',
-#         'USER': 'root',
-#         'PASSWORD': 'root',
-#         'HOST': 'localhost',
-#         'PORT': '3306',
-#     }
-# }
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',  # Or 'django.db.backends.mysql'
-        'NAME': 'sabariho_quiz_management',
-        'USER': 'sabariho_quiz_management',
-        'PASSWORD': '3dNEThxyLgUvZmsM8s4c',
-        'HOST': 's3.hostgrap.com',
+        'NAME': 'quiz_management',
+        'USER': 'root',
+        'PASSWORD': 'root',
+        'HOST': 'localhost',
         'PORT': '3306',
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',  # Or 'django.db.backends.mysql'
+#         'NAME': 'sabariho_quiz_management',
+#         'USER': 'sabariho_quiz_management',
+#         'PASSWORD': '3dNEThxyLgUvZmsM8s4c',
+#         'HOST': 's3.hostgrap.com',
+#         'PORT': '3306',
+#     }
+# }
 
 
 # Password validation
