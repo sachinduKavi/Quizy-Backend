@@ -34,6 +34,7 @@ class UserViewSet(viewsets.ModelViewSet):
             proceed = db_user.password == request.data['password']
             message = "Authorized" if proceed else 'Invalid credentials'
             encrypt_id = encrypt(str(db_user.id)) if proceed else "0"
+            print(encrypt_id)
 
         except Exception as e:
             print('exception occured', e)
@@ -45,5 +46,4 @@ class UserViewSet(viewsets.ModelViewSet):
             'message': message
         })
         response.set_cookie(key='quiz_token', value=encrypt_id, max_age=3600*24*365, httponly=True, secure=False, samesite='Lax', path="/")
-
         return response
