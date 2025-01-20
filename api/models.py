@@ -1,5 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from scipy.signal import max_len_seq
+
 
 # Create your models here.
 class User(models.Model):
@@ -24,7 +26,24 @@ class User(models.Model):
 
 
 class Quiz(models.Model):
-    topic = models.CharField(max_length=50)
+    quiz_id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    access_link = models.URLField(max_length=200, default='https://default-link.com')
+    quiz_name = models.CharField(max_length=50)
 
 
+    def __str__(self):
+        return self.quiz_name
 
+
+class Question(models.Model):
+    question_id = models.AutoField(primary_key=True)
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE) # Many to one
+    title = models.CharField(max_length=100)
+    description = models.CharField(max_length=100, blank=True, null=True)
+    type = models.CharField(max_length=20)
+    answer = models.CharField(max_length=200)
+
+
+    def __str__(self):
+        return self.question_id
