@@ -19,10 +19,11 @@ from django.urls import path, include
 from rest_framework import routers
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from api.views import UserViewSet
+from api.views import UserViewSet, QuizViewSet
 
 router = routers.DefaultRouter()
 router.register('users', UserViewSet, basename='users')
+router.register('quiz', QuizViewSet, basename='quiz')
 
 
 
