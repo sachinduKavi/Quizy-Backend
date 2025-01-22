@@ -114,60 +114,62 @@ class QuizViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'], url_path='updateQuiz')
     def updateQuiz(self, request, *args, **kwargs):
-        data = request.data
-
         try:
-            # Fetch the form using its ID
-            form_id = data.get('id')
-            form = get_object_or_404(Form, id=form_id)
-            form.name = data.get('name', form.name)
-            form.save()
+            # Fetch the quiz using its primary key `quiz_id`
+            quiz_id = request.data.get('id')
+            quiz = get_object_or_404(Quiz, quiz_id=quiz_id)
 
-            # Process questions in the form
-            for question_data in data.get('questionList', []):
-                question_id = question_data.get('id')
+            # Update quiz fields
+            quiz.quiz_name = request.data.get('name', quiz.quiz_name)
+            quiz.save()
+
+            # Process questions in the quiz
+            for question_data in request.data.get('questionList', []):
+                question_id = question_data.get('id')  # Primary key for the Question model
                 if question_id:
                     # Update existing question
-                    question = get_object_or_404(Question, id=question_id, form=form)
+                    question = get_object_or_404(Question, question_id=question_id, quiz=quiz)
                     question.title = question_data.get('title', question.title)
                     question.description = question_data.get('description', question.description)
+                    question.type = question_data.get('type', question.type)
+                    question.answer = question_data.get('answer', question.answer)
                     question.multiple = question_data.get('multiple', question.multiple)
                     question.required = question_data.get('required', question.required)
-                    question.image_file = question_data.get('imageFile', question.image_file)
-                    question.placement = question_data.get('placement', question.placement)
                     question.save()
 
-                    # Update choices for the question
+                    # Process answers (choices) for the question
                     for choice_data in question_data.get('choices', []):
-                        choice_id = choice_data.get('id')
+                        choice_id = choice_data.get('id')  # Primary key for the Answers model
                         if choice_id:
-                            choice = get_object_or_404(Choice, id=choice_id, question=question)
+                            # Update existing answer
+                            choice = get_object_or_404(Answers, ans_id=choice_id, question=question)
                             choice.answer = choice_data.get('answer', choice.answer)
-                            choice.selected = choice_data.get('selected', choice.selected)
+                            choice.state = choice_data.get('selected', choice.state)
                             choice.save()
                         else:
-                            # Create new choice
-                            Choice.objects.create(
+                            # Create a new answer
+                            Answers.objects.create(
                                 question=question,
                                 answer=choice_data['answer'],
-                                selected=choice_data['selected']
+                                state=choice_data['selected']
                             )
                 else:
-                    # Create new question
+                    # Create a new question
                     new_question = Question.objects.create(
-                        form=form,
+                        quiz=quiz,
                         title=question_data['title'],
                         description=question_data['description'],
-                        multiple=question_data['multiple'],
-                        required=question_data['required'],
-                        image_file=question_data.get('imageFile'),
-                        placement=question_data['placement']
+                        type=question_data.get('type', 'text'),
+                        answer=question_data.get('answer', ''),
+                        multiple=question_data.get('multiple', False),
+                        required=question_data.get('required', False)
                     )
+                    # Add answers (choices) for the new question
                     for choice_data in question_data.get('choices', []):
-                        Choice.objects.create(
+                        Answers.objects.create(
                             question=new_question,
                             answer=choice_data['answer'],
-                            selected=choice_data['selected']
+                            state=choice_data['selected']
                         )
 
             return Response({'message': 'Quiz updated successfully.', 'proceed': True}, status=status.HTTP_200_OK)
