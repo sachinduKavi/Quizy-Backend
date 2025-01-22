@@ -1,7 +1,9 @@
 from logging import exception
 
-from django.shortcuts import render
-from rest_framework import viewsets
+from django.forms import Form
+from django.shortcuts import render, get_object_or_404
+from django.utils.regex_helper import Choice
+from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .middleware import encrypt, decrypt
@@ -108,3 +110,67 @@ class QuizViewSet(viewsets.ModelViewSet):
                 {'message': 'An error occurred', 'error': str(e), 'proceed': False},
                 status=500
             )
+
+
+    @action(detail=False, methods=['post'], url_path='updateQuiz')
+    def updateQuiz(self, request, *args, **kwargs):
+        data = request.data
+
+        try:
+            # Fetch the form using its ID
+            form_id = data.get('id')
+            form = get_object_or_404(Form, id=form_id)
+            form.name = data.get('name', form.name)
+            form.save()
+
+            # Process questions in the form
+            for question_data in data.get('questionList', []):
+                question_id = question_data.get('id')
+                if question_id:
+                    # Update existing question
+                    question = get_object_or_404(Question, id=question_id, form=form)
+                    question.title = question_data.get('title', question.title)
+                    question.description = question_data.get('description', question.description)
+                    question.multiple = question_data.get('multiple', question.multiple)
+                    question.required = question_data.get('required', question.required)
+                    question.image_file = question_data.get('imageFile', question.image_file)
+                    question.placement = question_data.get('placement', question.placement)
+                    question.save()
+
+                    # Update choices for the question
+                    for choice_data in question_data.get('choices', []):
+                        choice_id = choice_data.get('id')
+                        if choice_id:
+                            choice = get_object_or_404(Choice, id=choice_id, question=question)
+                            choice.answer = choice_data.get('answer', choice.answer)
+                            choice.selected = choice_data.get('selected', choice.selected)
+                            choice.save()
+                        else:
+                            # Create new choice
+                            Choice.objects.create(
+                                question=question,
+                                answer=choice_data['answer'],
+                                selected=choice_data['selected']
+                            )
+                else:
+                    # Create new question
+                    new_question = Question.objects.create(
+                        form=form,
+                        title=question_data['title'],
+                        description=question_data['description'],
+                        multiple=question_data['multiple'],
+                        required=question_data['required'],
+                        image_file=question_data.get('imageFile'),
+                        placement=question_data['placement']
+                    )
+                    for choice_data in question_data.get('choices', []):
+                        Choice.objects.create(
+                            question=new_question,
+                            answer=choice_data['answer'],
+                            selected=choice_data['selected']
+                        )
+
+            return Response({'message': 'Quiz updated successfully.', 'proceed': True}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({'error': str(e), 'proceed': False}, status=status.HTTP_400_BAD_REQUEST)
