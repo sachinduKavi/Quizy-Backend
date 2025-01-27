@@ -1,9 +1,10 @@
+from json.decoder import JSONArray
 from logging import exception
 
 from django.forms import Form
 from django.shortcuts import render, get_object_or_404
 from django.utils.regex_helper import Choice
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .middleware import encrypt, decrypt
@@ -101,7 +102,7 @@ class QuizViewSet(viewsets.ModelViewSet):
                     )
 
             return Response(
-                {'message': 'Quiz and questions created successfully', 'quiz_id': quiz.quiz_id, 'proceed': True},
+                {'message': 'Quiz and questions created successfully', 'quiz_id': quiz.quiz_id, 'proceed': True, 'quiz_data': QuizSerializer(quiz).data},
                 status=201
             )
 
@@ -172,7 +173,7 @@ class QuizViewSet(viewsets.ModelViewSet):
                             state=choice_data['selected']
                         )
 
-            return Response({'message': 'Quiz updated successfully.', 'proceed': True}, status=status.HTTP_200_OK)
+            return Response({'message': 'Quiz updated successfully.', 'proceed': True, 'quiz_data': quiz}, status=status.HTTP_200_OK)
 
         except Exception as e:
             return Response({'error': str(e), 'proceed': False}, status=status.HTTP_400_BAD_REQUEST)
