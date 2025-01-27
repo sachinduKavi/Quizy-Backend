@@ -44,7 +44,6 @@ class Question(models.Model):
     title = models.CharField(max_length=100)
     description = models.CharField(max_length=100, blank=True, null=True)
     type = models.CharField(max_length=20)
-    answer = models.CharField(max_length=200)
     multiple = models.BooleanField(default=False)
     required = models.BooleanField(default=False)
 
