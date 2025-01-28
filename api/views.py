@@ -177,3 +177,13 @@ class QuizViewSet(viewsets.ModelViewSet):
 
         except Exception as e:
             return Response({'error': str(e), 'proceed': False}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+    @action(detail=False, methods=['get'], url_path='getQuiz')
+    def getAllQuizes(self, request, *args, **kwargs):
+        # Fetch the quiz using its primary key `quiz_id`
+        quiz_id = request.data.get('id')
+        quiz = get_object_or_404(Quiz, quiz_id=quiz_id)
+
+
