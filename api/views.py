@@ -1,4 +1,3 @@
-from json.decoder import JSONArray
 from logging import exception
 
 from django.forms import Form
@@ -48,7 +47,15 @@ class UserViewSet(viewsets.ModelViewSet):
             'content': db_user.extract_json() if proceed else None,
             'message': message
         })
-        response.set_cookie(key='quiz_token', value=encrypt_id, max_age=3600*24*365, httponly=True, secure=False, samesite='Lax', path="/")
+        response.set_cookie(
+            key='quiz_token',
+            value=encrypt_id,
+            max_age=3600*24*365,  # 1 year
+            httponly=True,
+            secure=False,  # Use True in production (requires HTTPS)
+            samesite='Lax',
+            path="/"  # Global scope
+        )
         return response
 
 
@@ -113,77 +120,111 @@ class QuizViewSet(viewsets.ModelViewSet):
             )
 
 
-    @action(detail=False, methods=['post'], url_path='updateQuiz')
-    def updateQuiz(self, request, *args, **kwargs):
-        try:
-            # Fetch the quiz using its primary key `quiz_id`
-            quiz_id = request.data.get('id')
-            quiz = get_object_or_404(Quiz, quiz_id=quiz_id)
+    # @action(detail=False, methods=['post'], url_path='updateQuiz')
+    # def updateQuiz(self, request, *args, **kwargs):
+    #     try:
+    #         # Fetch the quiz using its primary key `quiz_id`
+    #         quiz_id = request.data.get('id')
+    #         quiz = get_object_or_404(Quiz, quiz_id=quiz_id)
+    #
+    #         # Update quiz fields
+    #         quiz.quiz_name = request.data.get('name', quiz.quiz_name)
+    #         quiz.save()
+    #
+    #         # Process questions in the quiz
+    #         for question_data in request.data.get('questionList', []):
+    #             question_id = question_data.get('id')  # Primary key for the Question model
+    #             if question_id:
+    #                 # Update existing question
+    #                 question = get_object_or_404(Question, question_id=question_id, quiz=quiz)
+    #                 question.title = question_data.get('title', question.title)
+    #                 question.description = question_data.get('description', question.description)
+    #                 question.type = question_data.get('type', question.type)
+    #                 question.answer = question_data.get('answer', question.answer)
+    #                 question.multiple = question_data.get('multiple', question.multiple)
+    #                 question.required = question_data.get('required', question.required)
+    #                 question.save()
+    #
+    #                 # Process answers (choices) for the question
+    #                 for choice_data in question_data.get('choices', []):
+    #                     choice_id = choice_data.get('id')  # Primary key for the Answers model
+    #                     if choice_id:
+    #                         # Update existing answer
+    #                         choice = get_object_or_404(Answers, ans_id=choice_id, question=question)
+    #                         choice.answer = choice_data.get('answer', choice.answer)
+    #                         choice.state = choice_data.get('selected', choice.state)
+    #                         choice.save()
+    #                     else:
+    #                         # Create a new answer
+    #                         Answers.objects.create(
+    #                             question=question,
+    #                             answer=choice_data['answer'],
+    #                             state=choice_data['selected']
+    #                         )
+    #             else:
+    #                 # Create a new question
+    #                 new_question = Question.objects.create(
+    #                     quiz=quiz,
+    #                     title=question_data['title'],
+    #                     description=question_data['description'],
+    #                     type=question_data.get('type', 'text'),
+    #                     answer=question_data.get('answer', ''),
+    #                     multiple=question_data.get('multiple', False),
+    #                     required=question_data.get('required', False)
+    #                 )
+    #                 # Add answers (choices) for the new question
+    #                 for choice_data in question_data.get('choices', []):
+    #                     Answers.objects.create(
+    #                         question=new_question,
+    #                         answer=choice_data['answer'],
+    #                         state=choice_data['selected']
+    #                     )
+    #
+    #         return Response({'message': 'Quiz updated successfully.', 'proceed': True, 'quiz_data': quiz}, status=status.HTTP_200_OK)
+    #
+    #     except Exception as e:
+    #         return Response({'error': str(e), 'proceed': False}, status=status.HTTP_400_BAD_REQUEST)
 
-            # Update quiz fields
-            quiz.quiz_name = request.data.get('name', quiz.quiz_name)
-            quiz.save()
 
-            # Process questions in the quiz
-            for question_data in request.data.get('questionList', []):
-                question_id = question_data.get('id')  # Primary key for the Question model
-                if question_id:
-                    # Update existing question
-                    question = get_object_or_404(Question, question_id=question_id, quiz=quiz)
-                    question.title = question_data.get('title', question.title)
-                    question.description = question_data.get('description', question.description)
-                    question.type = question_data.get('type', question.type)
-                    question.answer = question_data.get('answer', question.answer)
-                    question.multiple = question_data.get('multiple', question.multiple)
-                    question.required = question_data.get('required', question.required)
-                    question.save()
 
-                    # Process answers (choices) for the question
-                    for choice_data in question_data.get('choices', []):
-                        choice_id = choice_data.get('id')  # Primary key for the Answers model
-                        if choice_id:
-                            # Update existing answer
-                            choice = get_object_or_404(Answers, ans_id=choice_id, question=question)
-                            choice.answer = choice_data.get('answer', choice.answer)
-                            choice.state = choice_data.get('selected', choice.state)
-                            choice.save()
-                        else:
-                            # Create a new answer
-                            Answers.objects.create(
-                                question=question,
-                                answer=choice_data['answer'],
-                                state=choice_data['selected']
-                            )
-                else:
-                    # Create a new question
-                    new_question = Question.objects.create(
-                        quiz=quiz,
-                        title=question_data['title'],
-                        description=question_data['description'],
-                        type=question_data.get('type', 'text'),
-                        answer=question_data.get('answer', ''),
-                        multiple=question_data.get('multiple', False),
-                        required=question_data.get('required', False)
-                    )
-                    # Add answers (choices) for the new question
-                    for choice_data in question_data.get('choices', []):
-                        Answers.objects.create(
-                            question=new_question,
-                            answer=choice_data['answer'],
-                            state=choice_data['selected']
-                        )
+    @action(detail=False, methods=['get'], url_path='getQuizzes')
+    def getAllQuizzes(self, request, *args, **kwargs):
+        # Fetch the user ID from the query parameters
+        user_id = decrypt("gAAAAABnmhEFJTMAxbwqZt6H6Zv5E7bBtb_-g-mN0GfLIkIIB3KHNK_Bj0wwOv0ihaiaZUhdahC1tYLRPLdYAHQzwnLPkJWcEw==")
+        print(user_id)
+        if not user_id:
+            return Response({"error": "User ID is required."}, status=400)
 
-            return Response({'message': 'Quiz updated successfully.', 'proceed': True, 'quiz_data': quiz}, status=status.HTTP_200_OK)
+        # Filter quizzes based on the user ID
+        quizzes = Quiz.objects.filter(user__id=user_id)
 
-        except Exception as e:
-            return Response({'error': str(e), 'proceed': False}, status=status.HTTP_400_BAD_REQUEST)
+        if not quizzes.exists():
+            return Response({"message": "No quizzes found for the given user ID."}, status=404)
+
+        # Serialize the quizzes data
+        serializer = QuizSerializer(quizzes, many=True)
+
+        # Return the serialized data as a response
+        return Response(serializer.data, status=200)
 
 
 
-    @action(detail=False, methods=['get'], url_path='getQuiz')
-    def getAllQuizes(self, request, *args, **kwargs):
-        # Fetch the quiz using its primary key `quiz_id`
-        quiz_id = request.data.get('id')
-        quiz = get_object_or_404(Quiz, quiz_id=quiz_id)
+    @action(detail=False, methods=['delete'], url_path='deleteQuiz')
+    def deleteQuiz(self, request, *args, **kwargs):
+        quiz_id = request.query_params.get('quiz_id')  # Use query_params to get parameters from the request
+        if not quiz_id:
+            return Response(
+                {"success": False, "message": "Quiz ID is required."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        quiz = get_object_or_404(Quiz, id=quiz_id)  # Fetch the quiz object or return 404 if not found
+        quiz.delete()  # Delete the quiz
+
+        return Response(
+            {"success": True, "message": "Quiz deleted successfully."},
+            status=status.HTTP_200_OK
+        )
+
 
 
