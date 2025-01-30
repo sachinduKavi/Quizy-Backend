@@ -227,4 +227,51 @@ class QuizViewSet(viewsets.ModelViewSet):
         )
 
 
+    @action(detail=False, methods=['get'], url_path='getQuiz')
+    def getQuiz(self, request, *args, **kwargs):
+        quiz_id = request.query_params.get("quiz_id")  # Use query parameters for GET requests
+
+        if not quiz_id:
+            return Response(
+                {"error": "quiz_id is required."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            # Fetch the quiz
+            quiz = Quiz.objects.get(quiz_id=quiz_id)
+
+            # Fetch the related questions
+            questions = Question.objects.filter(quiz=quiz).values(
+                "question_id", "title", "description", "type", "multiple", "required"
+            )
+
+            # Build the response
+            quiz_data = {
+                "quiz_id": quiz.quiz_id,
+                "quiz_name": quiz.quiz_name,
+                "access_link": quiz.access_link,
+                "user": {
+                    "id": quiz.user.id if quiz.user else None,
+                    "name": quiz.user.name if quiz.user else None,
+                    "email": quiz.user.email if quiz.user else None,
+                },
+                "questions": list(questions),
+            }
+
+            return Response(quiz_data, status=status.HTTP_200_OK)
+
+        except Quiz.DoesNotExist:
+            return Response(
+                {"error": "Quiz not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {"error": f"An unexpected error occurred: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+
 
