@@ -83,9 +83,10 @@ class QuizViewSet(viewsets.ModelViewSet):
             # Create Quiz entry
             quiz = Quiz.objects.create(
                 user_id=user_id,
-                quiz_name=quiz_name,
-                access_link=f"http://example.com/quizzes/"  # Generate access link
+                quiz_name=quiz_name
             )
+
+            quiz.access_link = f"http://localhost:5173/question/{quiz.quiz_id}"
             quiz.save()
 
 
