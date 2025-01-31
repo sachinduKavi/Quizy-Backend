@@ -63,3 +63,14 @@ class Answers(models.Model):
         return self.ans_id
 
 
+
+class Submission(models.Model):
+    submission_id = models.AutoField(primary_key=True)
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
+    submitter = models.TextField(max_length=25)
+    selected_value = models.TextField(max_length=50)
+
+
+    def __str__(self):
+        return self.submission_id + " " + self.submitter
+
