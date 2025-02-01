@@ -8,7 +8,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from .middleware import encrypt, decrypt
 
-from .models import User, Quiz, Question, Answers
+from .models import User, Quiz, Question, Answers, Submission, SelectedValue
 from .serializers import UserSerializer, QuizSerializer, QuestionSerializers
 
 # Create your views here.
@@ -86,7 +86,7 @@ class QuizViewSet(viewsets.ModelViewSet):
                 quiz_name=quiz_name
             )
 
-            quiz.access_link = f"http://localhost:5173/question/{quiz.quiz_id}"
+            quiz.access_link = f"http://localhost:5173/questions/{quiz.quiz_id}"
             quiz.save()
 
 
@@ -121,70 +121,70 @@ class QuizViewSet(viewsets.ModelViewSet):
             )
 
 
-    # @action(detail=False, methods=['post'], url_path='updateQuiz')
-    # def updateQuiz(self, request, *args, **kwargs):
-    #     try:
-    #         # Fetch the quiz using its primary key `quiz_id`
-    #         quiz_id = request.data.get('id')
-    #         quiz = get_object_or_404(Quiz, quiz_id=quiz_id)
-    #
-    #         # Update quiz fields
-    #         quiz.quiz_name = request.data.get('name', quiz.quiz_name)
-    #         quiz.save()
-    #
-    #         # Process questions in the quiz
-    #         for question_data in request.data.get('questionList', []):
-    #             question_id = question_data.get('id')  # Primary key for the Question model
-    #             if question_id:
-    #                 # Update existing question
-    #                 question = get_object_or_404(Question, question_id=question_id, quiz=quiz)
-    #                 question.title = question_data.get('title', question.title)
-    #                 question.description = question_data.get('description', question.description)
-    #                 question.type = question_data.get('type', question.type)
-    #                 question.answer = question_data.get('answer', question.answer)
-    #                 question.multiple = question_data.get('multiple', question.multiple)
-    #                 question.required = question_data.get('required', question.required)
-    #                 question.save()
-    #
-    #                 # Process answers (choices) for the question
-    #                 for choice_data in question_data.get('choices', []):
-    #                     choice_id = choice_data.get('id')  # Primary key for the Answers model
-    #                     if choice_id:
-    #                         # Update existing answer
-    #                         choice = get_object_or_404(Answers, ans_id=choice_id, question=question)
-    #                         choice.answer = choice_data.get('answer', choice.answer)
-    #                         choice.state = choice_data.get('selected', choice.state)
-    #                         choice.save()
-    #                     else:
-    #                         # Create a new answer
-    #                         Answers.objects.create(
-    #                             question=question,
-    #                             answer=choice_data['answer'],
-    #                             state=choice_data['selected']
-    #                         )
-    #             else:
-    #                 # Create a new question
-    #                 new_question = Question.objects.create(
-    #                     quiz=quiz,
-    #                     title=question_data['title'],
-    #                     description=question_data['description'],
-    #                     type=question_data.get('type', 'text'),
-    #                     answer=question_data.get('answer', ''),
-    #                     multiple=question_data.get('multiple', False),
-    #                     required=question_data.get('required', False)
-    #                 )
-    #                 # Add answers (choices) for the new question
-    #                 for choice_data in question_data.get('choices', []):
-    #                     Answers.objects.create(
-    #                         question=new_question,
-    #                         answer=choice_data['answer'],
-    #                         state=choice_data['selected']
-    #                     )
-    #
-    #         return Response({'message': 'Quiz updated successfully.', 'proceed': True, 'quiz_data': quiz}, status=status.HTTP_200_OK)
-    #
-    #     except Exception as e:
-    #         return Response({'error': str(e), 'proceed': False}, status=status.HTTP_400_BAD_REQUEST)
+    @action(detail=False, methods=['post'], url_path='updateQuiz')
+    def updateQuiz(self, request, *args, **kwargs):
+        try:
+            # Fetch the quiz using its primary key `quiz_id`
+            quiz_id = request.data.get('id')
+            quiz = get_object_or_404(Quiz, quiz_id=quiz_id)
+
+            # Update quiz fields
+            quiz.quiz_name = request.data.get('name', quiz.quiz_name)
+            quiz.save()
+
+            # Process questions in the quiz
+            for question_data in request.data.get('questionList', []):
+                question_id = question_data.get('id')  # Primary key for the Question model
+                if question_id:
+                    # Update existing question
+                    question = get_object_or_404(Question, question_id=question_id, quiz=quiz)
+                    question.title = question_data.get('title', question.title)
+                    question.description = question_data.get('description', question.description)
+                    question.type = question_data.get('type', question.type)
+                    question.answer = question_data.get('answer', question.answer)
+                    question.multiple = question_data.get('multiple', question.multiple)
+                    question.required = question_data.get('required', question.required)
+                    question.save()
+
+                    # Process answers (choices) for the question
+                    for choice_data in question_data.get('choices', []):
+                        choice_id = choice_data.get('id')  # Primary key for the Answers model
+                        if choice_id:
+                            # Update existing answer
+                            choice = get_object_or_404(Answers, ans_id=choice_id, question=question)
+                            choice.answer = choice_data.get('answer', choice.answer)
+                            choice.state = choice_data.get('selected', choice.state)
+                            choice.save()
+                        else:
+                            # Create a new answer
+                            Answers.objects.create(
+                                question=question,
+                                answer=choice_data['answer'],
+                                state=choice_data['selected']
+                            )
+                else:
+                    # Create a new question
+                    new_question = Question.objects.create(
+                        quiz=quiz,
+                        title=question_data['title'],
+                        description=question_data['description'],
+                        type=question_data.get('type', 'text'),
+                        answer=question_data.get('answer', ''),
+                        multiple=question_data.get('multiple', False),
+                        required=question_data.get('required', False)
+                    )
+                    # Add answers (choices) for the new question
+                    for choice_data in question_data.get('choices', []):
+                        Answers.objects.create(
+                            question=new_question,
+                            answer=choice_data['answer'],
+                            state=choice_data['selected']
+                        )
+
+            return Response({'message': 'Quiz updated successfully.', 'proceed': True, 'quiz_data': quiz}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({'error': str(e), 'proceed': False}, status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -242,10 +242,17 @@ class QuizViewSet(viewsets.ModelViewSet):
             # Fetch the quiz
             quiz = Quiz.objects.get(quiz_id=quiz_id)
 
-            # Fetch the related questions
+            # Fetch the related questions and their answers
             questions = Question.objects.filter(quiz=quiz).values(
                 "question_id", "title", "description", "type", "multiple", "required"
             )
+
+            # Include the answers for each question
+            questions_with_answers = []
+            for question in questions:
+                answers = Answers.objects.filter(question_id=question['question_id']).values('ans_id', 'answer', 'state')
+                question['answers'] = list(answers)
+                questions_with_answers.append(question)
 
             # Build the response
             quiz_data = {
@@ -257,7 +264,7 @@ class QuizViewSet(viewsets.ModelViewSet):
                     "name": quiz.user.name if quiz.user else None,
                     "email": quiz.user.email if quiz.user else None,
                 },
-                "questions": list(questions),
+                "questions": questions_with_answers,
             }
 
             return Response(quiz_data, status=status.HTTP_200_OK)
@@ -275,4 +282,108 @@ class QuizViewSet(viewsets.ModelViewSet):
 
 
 
+    @action(detail=False, methods=['post'], url_path='saveSubmission')
+    def save_submission(self, request, *args, **kwargs):
+        try:
+            # Parse the request body
+            username = request.data.get("username")
+            quiz_id = request.data.get("quizID")
+            selected_values = request.data.get("selected_values")
 
+            # Validate the required fields
+            if not quiz_id or not selected_values:
+                return Response({"error": "Missing required fields"}, status=400)
+
+            # Fetch the quiz object
+            try:
+                quiz = Quiz.objects.get(quiz_id=quiz_id)
+            except Quiz.DoesNotExist:
+                return Response({"error": "Quiz not found"}, status=404)
+
+            # Create a new submission object
+            submission = Submission.objects.create(
+                quiz=quiz,
+                submitter=username if username else "Anonymous"  # Allow anonymous submissions
+            )
+
+            # Iterate through selected values and save them
+            for value in selected_values:
+                question_id = value.get("question_id")
+                selected_answers = value.get("selected_answers")
+
+                # Validate question ID and answers
+                if not question_id or not isinstance(selected_answers, list):
+                    return Response({"error": f"Invalid data for question_id {question_id}"}, status=400)
+
+                try:
+                    question = Question.objects.get(question_id=question_id, quiz=quiz)
+                except Question.DoesNotExist:
+                    return Response({"error": f"Question with ID {question_id} not found"}, status=404)
+
+                # Save each selected answer
+                for answer_value in selected_answers:
+                    answer = Answers.objects.filter(question=question, answer=answer_value).first()
+                    if not answer:
+                        return Response({"error": f"Answer '{answer_value}' not found for question {question_id}"}, status=404)
+
+                    # Adjust this to fit the SelectedValue model fields
+                    SelectedValue.objects.create(
+                        question=question,
+                        submission=submission,
+                        # Replace this field with the correct one from the model
+                        value=answer.answer  # Assuming a 'value' field in SelectedValue to store the answer text
+                    )
+
+            return Response({"message": "Submission saved successfully"}, status=201)
+
+        except Exception as e:
+            return Response({"error": f"An error occurred: {str(e)}"}, status=500)
+
+
+
+    @action(detail=False, methods=['get'], url_path='getQuizSubmissions')
+    def getQuizSubmissions(self, request, *args, **kwargs):
+        # Extract quiz_id from the request
+        quiz_id = request.query_params.get('quizID')
+
+        if not quiz_id:
+            return Response({"error": "Quiz ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Fetch the quiz using quiz_id
+            quiz = Quiz.objects.get(quiz_id=quiz_id)
+        except Quiz.DoesNotExist:
+            return Response({"error": "Quiz not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Fetch all submissions for the given quiz
+        submissions = Submission.objects.filter(quiz=quiz)
+
+        submission_data = []
+
+        # Loop through each submission and fetch selected values
+        for submission in submissions:
+            selected_values = SelectedValue.objects.filter(submission=submission)
+
+            answers_data = []
+            for selected_value in selected_values:
+                question = selected_value.question
+                # Get answers for the question
+                answers_for_question = Answers.objects.filter(question=question)
+                answer_values = [answer.answer for answer in answers_for_question]
+
+                answers_data.append({
+                    "question_id": question.question_id,
+                    "question_title": question.title,
+                    "answers": answer_values,
+                })
+
+            submission_data.append({
+                "submission_id": submission.submission_id,
+                "submitter": submission.submitter,
+                "answers": answers_data
+            })
+
+        return Response({
+            "quiz_name": quiz.quiz_name,
+            "submissions": submission_data
+        })
